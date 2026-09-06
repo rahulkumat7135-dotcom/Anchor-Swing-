@@ -1,0 +1,693 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anchor Swing</title>
+<style>
+:root{
+  --bg:#05070d;
+  --bg-2:#0a0e1a;
+  --accent:#ff5b3d;
+  --accent-dim:rgba(255,91,61,.18);
+  --cyan:#4ff0ff;
+  --cyan-dim:rgba(79,240,255,.16);
+  --text:#eef4f8;
+  --muted:rgba(238,244,248,.5);
+  --border:rgba(238,244,248,.1);
+  --shadow: 0 0 24px var(--cyan-dim), 0 0 6px var(--cyan);
+  --r:14px;
+}
+*{box-sizing:border-box;}
+html,body{
+  margin:0; padding:0; width:100%; height:100%;
+  background:var(--bg); overflow:hidden;
+  font-family:'IBM Plex Mono', ui-monospace, monospace;
+  color:var(--text);
+  touch-action:none;
+  -webkit-user-select:none; user-select:none;
+}
+@font-face{
+  font-family:'Bebas';
+  src:local('Arial');
+}
+canvas{
+  display:block;
+  position:absolute; top:0; left:0;
+  width:100%; height:100%;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(79,240,255,.05), transparent 60%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+}
+
+/* HUD */
+#hud{
+  position:absolute; top:0; left:0; width:100%;
+  display:flex; justify-content:space-between; align-items:flex-start;
+  padding:20px 24px;
+  pointer-events:none;
+  z-index:5;
+}
+.hud-block{
+  display:flex; flex-direction:column; gap:2px;
+}
+.hud-label{
+  font-size:11px; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--muted);
+}
+.hud-value{
+  font-size:32px; font-weight:700; line-height:1;
+  color:var(--text);
+  text-shadow:0 0 12px rgba(79,240,255,.35);
+}
+.hud-value.best{ color:var(--cyan); }
+#hint{
+  position:absolute; bottom:20px; left:0; width:100%;
+  text-align:center; pointer-events:none;
+  font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--muted);
+  z-index:5;
+  transition:opacity .4s ease;
+}
+
+/* Overlays */
+.overlay{
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(5,7,13,.86);
+  z-index:20;
+  padding:24px;
+}
+.overlay.hidden{ display:none; }
+.panel{
+  background:var(--bg-2);
+  border:2px solid var(--border);
+  border-radius:var(--r);
+  padding:40px 32px;
+  max-width:420px;
+  width:100%;
+  text-align:center;
+  box-shadow: var(--shadow);
+  animation:panelIn .45s ease;
+}
+@keyframes panelIn{
+  from{ opacity:0; transform:translateY(12px) scale(.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+.panel h1{
+  font-family:'Arial Black', Arial, sans-serif;
+  font-size:38px;
+  letter-spacing:.04em;
+  margin:0 0 8px;
+  color:var(--text);
+  text-transform:uppercase;
+}
+.panel .glow{
+  background:linear-gradient(135deg, var(--cyan), var(--accent));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+.panel p{
+  font-size:14px;
+  line-height:1.6;
+  color:var(--muted);
+  margin:0 0 28px;
+}
+.panel .stats{
+  display:flex; justify-content:center; gap:32px;
+  margin-bottom:28px;
+}
+.stat{
+  display:flex; flex-direction:column; gap:4px;
+}
+.stat .n{
+  font-size:40px; font-weight:700;
+  color:var(--text);
+}
+.stat.new .n{ color:var(--accent); text-shadow:0 0 16px var(--accent-dim); }
+.stat .l{
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted);
+}
+button.btn{
+  appearance:none; border:none; cursor:pointer;
+  font-family:inherit;
+  font-size:15px; letter-spacing:.1em; text-transform:uppercase;
+  font-weight:700;
+  padding:16px 36px;
+  border-radius:10px;
+  background:var(--cyan);
+  color:#04141a;
+  box-shadow:-3px 4px 0 0 var(--accent);
+  transition:transform .12s ease, box-shadow .12s ease;
+}
+button.btn:hover{ filter:brightness(1.08); }
+button.btn:active{
+  transform:translate(2px,-2px);
+  box-shadow:none;
+}
+button.btn:focus-visible{
+  outline:2px solid var(--cyan);
+  outline-offset:3px;
+}
+.newbest{
+  display:none;
+  font-size:12px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent);
+  margin-bottom:20px;
+  text-shadow:0 0 10px var(--accent-dim);
+}
+.newbest.show{ display:block; }
+
+.kbd{
+  display:inline-block;
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:2px 8px;
+  font-size:12px;
+  color:var(--text);
+  background:rgba(255,255,255,.04);
+}
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<div id="hud">
+  <div class="hud-block">
+    <div class="hud-label">Score</div>
+    <div class="hud-value" id="scoreVal">0</div>
+  </div>
+  <div class="hud-block" style="text-align:right;">
+    <div class="hud-label">Best</div>
+    <div class="hud-value best" id="bestVal">0</div>
+  </div>
+</div>
+
+<div id="hint">tap / click / <span class="kbd">space</span> — release the ball at the right moment</div>
+
+<div class="overlay" id="startOverlay">
+  <div class="panel">
+    <h1>Anchor <span class="glow">Swing</span></h1>
+    <p>The ball orbits each anchor automatically. Tap to release it — it flies off in a straight line along the tangent of its orbit. Time the release to swing past the spikes and catch the next anchor ahead.</p>
+    <button class="btn" id="startBtn">Start</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="overOverlay">
+  <div class="panel">
+    <h1 id="overTitle">Missed</h1>
+    <div class="newbest" id="newBestTag">★ New Best ★</div>
+    <div class="stats">
+      <div class="stat">
+        <div class="n" id="finalScore">0</div>
+        <div class="l">Score</div>
+      </div>
+      <div class="stat">
+        <div class="n" id="finalBest">0</div>
+        <div class="l">Best</div>
+      </div>
+    </div>
+    <button class="btn" id="restartBtn">Restart</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d');
+  let W, H, DPR;
+
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * DPR;
+    canvas.height = H * DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const LS_KEY = 'anchorSwingBest';
+  let best = parseInt(localStorage.getItem(LS_KEY) || '0', 10) || 0;
+  document.getElementById('bestVal').textContent = best;
+
+  const scoreEl = document.getElementById('scoreVal');
+  const bestEl = document.getElementById('bestVal');
+  const hint = document.getElementById('hint');
+  const startOverlay = document.getElementById('startOverlay');
+  const overOverlay = document.getElementById('overOverlay');
+  const startBtn = document.getElementById('startBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const overTitle = document.getElementById('overTitle');
+  const finalScoreEl = document.getElementById('finalScore');
+  const finalBestEl = document.getElementById('finalBest');
+  const newBestTag = document.getElementById('newBestTag');
+
+  // ---- Game state ----
+  let state = 'idle'; // idle, playing, over
+  let score = 0;
+  let cameraY = 0; // amount world has scrolled (positive = scrolled up)
+  let anchors = []; // {x,y,r,id}
+  let spikes = []; // {x,y,size,angle}
+  let ball = { x:0, y:0, mode:'orbit', anchorIdx:0, angle:0, vx:0, vy:0 };
+  let orbitRadius = 90;
+  let orbitSpeed = 1.4; // rad/s baseline
+  let anchorSpacing = 220;
+  let anchorIdCounter = 0;
+  let trail = [];
+  let flashTimer = 0;
+  let particles = [];
+  let shakeTimer = 0;
+
+  const BALL_R = 8;
+  const ANCHOR_R = 26;
+  const CATCH_R = 46;
+  const FLY_SPEED = 480; // px/s straight line speed after release
+
+  function rand(a,b){ return a + Math.random()*(b-a); }
+
+  function resetGame(){
+    score = 0;
+    cameraY = 0;
+    anchors = [];
+    spikes = [];
+    trail = [];
+    particles = [];
+    anchorIdCounter = 0;
+    orbitRadius = 90;
+    orbitSpeed = 1.4;
+    anchorSpacing = 220;
+
+    // first anchor centered, fixed near bottom-ish
+    let startX = W/2;
+    let startY = H - 140;
+    anchors.push({x:startX, y:startY, r:ANCHOR_R, id: anchorIdCounter++});
+
+    // generate anchors going upward
+    let prevX = startX, prevY = startY;
+    for(let i=1;i<10;i++){
+      addNextAnchor(true);
+    }
+
+    ball.mode = 'orbit';
+    ball.anchorIdx = 0;
+    ball.angle = -Math.PI/2;
+    updateOrbitPos();
+    scoreEl.textContent = '0';
+  }
+
+  function currentDifficultyT(){
+    // 0..1 style ramp, saturates
+    return Math.min(score / 40, 1);
+  }
+
+  function addNextAnchor(initial){
+    const last = anchors[anchors.length-1];
+    const t = currentDifficultyT();
+    // spacing decreases as score grows (tighter gaps)
+    const spacing = anchorSpacing - t*70 + rand(-14,14);
+    const xRange = W*0.62;
+    let nx = last.x + rand(-xRange/2, xRange/2);
+    nx = Math.max(70, Math.min(W-70, nx));
+    const ny = last.y - Math.max(150, spacing);
+    const anchor = {x:nx, y:ny, r:ANCHOR_R, id:anchorIdCounter++};
+    anchors.push(anchor);
+
+    // maybe add a spike between last and this anchor, positioned off the straight line
+    if(!initial || anchors.length > 2){
+      if(Math.random() < 0.8){
+        const midX = (last.x+nx)/2 + rand(-60,60);
+        const midY = (last.y+ny)/2 + rand(-30,30);
+        const size = rand(18,26);
+        spikes.push({x:midX, y:midY, size, id:'s'+anchorIdCounter});
+      }
+      if(Math.random() < 0.35 + t*0.3){
+        const midX2 = last.x + rand(-W*0.3, W*0.3);
+        const midY2 = last.y - rand(40, spacing-40);
+        const mx = Math.max(40, Math.min(W-40, midX2));
+        spikes.push({x:mx, y:midY2, size: rand(16,24), id:'s2'+anchorIdCounter});
+      }
+    }
+  }
+
+  function updateOrbitPos(){
+    const a = anchors[ball.anchorIdx];
+    if(!a) return;
+    ball.x = a.x + Math.cos(ball.angle)*orbitRadius;
+    ball.y = a.y + Math.sin(ball.angle)*orbitRadius;
+  }
+
+  function release(){
+    if(state !== 'playing') return;
+    if(ball.mode !== 'orbit') return;
+    const a = anchors[ball.anchorIdx];
+    // tangent direction: derivative of position w.r.t angle, times angular direction sign
+    // position = a + r*(cos,sin); velocity direction = d/dt = r * angularVel * (-sin, cos)
+    const dirSign = orbitSpeedSign;
+    const tx = -Math.sin(ball.angle) * dirSign;
+    const ty = Math.cos(ball.angle) * dirSign;
+    const len = Math.hypot(tx,ty) || 1;
+    ball.vx = (tx/len) * FLY_SPEED;
+    ball.vy = (ty/len) * FLY_SPEED;
+    ball.mode = 'fly';
+    beep(660, 0.04);
+  }
+
+  let orbitSpeedSign = 1; // counter-clockwise (angle increasing) = 1
+
+  function spawnParticles(x,y,color,count){
+    for(let i=0;i<count;i++){
+      const ang = rand(0, Math.PI*2);
+      const spd = rand(40,220);
+      particles.push({
+        x,y,
+        vx: Math.cos(ang)*spd,
+        vy: Math.sin(ang)*spd,
+        life: rand(0.4,0.9),
+        maxLife: 0.9,
+        color
+      });
+    }
+  }
+
+  function gameOver(reason){
+    state = 'over';
+    shakeTimer = 0.35;
+    spawnParticles(ball.x, ball.y, '#ff5b3d', 26);
+    beep(140, 0.15, 'sawtooth');
+    setTimeout(()=>{
+      overTitle.textContent = reason === 'spike' ? 'Impaled' : 'Missed';
+      finalScoreEl.textContent = score;
+      const isNewBest = score > best;
+      if(isNewBest){
+        best = score;
+        localStorage.setItem(LS_KEY, String(best));
+        newBestTag.classList.add('show');
+      } else {
+        newBestTag.classList.remove('show');
+      }
+      finalBestEl.textContent = best;
+      bestEl.textContent = best;
+      overOverlay.classList.remove('hidden');
+    }, 260);
+  }
+
+  // ---- Audio (simple beeps) ----
+  let audioCtx = null;
+  function beep(freq, dur, type){
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.value = 0.05;
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      osc.stop(audioCtx.currentTime + dur + 0.02);
+    }catch(e){}
+  }
+
+  // ---- Input ----
+  function handleInput(e){
+    if(e && e.preventDefault) e.preventDefault();
+    if(state === 'playing'){
+      release();
+    }
+  }
+  canvas.addEventListener('mousedown', handleInput);
+  canvas.addEventListener('touchstart', handleInput, {passive:false});
+  window.addEventListener('keydown', function(e){
+    if(e.code === 'Space'){
+      e.preventDefault();
+      if(state === 'playing') release();
+      else if(state === 'idle') startGame();
+      else if(state === 'over') startGame();
+    }
+  });
+
+  startBtn.addEventListener('click', startGame);
+  restartBtn.addEventListener('click', startGame);
+
+  function startGame(){
+    startOverlay.classList.add('hidden');
+    overOverlay.classList.add('hidden');
+    resetGame();
+    state = 'playing';
+    hint.style.opacity = '1';
+  }
+
+  // ---- Main loop ----
+  let lastTime = performance.now();
+  function loop(now){
+    const dt = Math.min((now - lastTime)/1000, 0.033);
+    lastTime = now;
+    update(dt);
+    render();
+    requestAnimationFrame(loop);
+  }
+  requestAnimationFrame(loop);
+
+  function update(dt){
+    // particles always update for visual polish
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.vy += 500*dt;
+      p.x += p.vx*dt;
+      p.y += p.vy*dt;
+      p.life -= dt;
+      if(p.life<=0) particles.splice(i,1);
+    }
+    if(shakeTimer>0) shakeTimer -= dt;
+
+    if(state !== 'playing') return;
+
+    // difficulty ramp
+    const t = currentDifficultyT();
+    orbitSpeed = 1.4 + t*1.3;
+
+    if(ball.mode === 'orbit'){
+      ball.angle += orbitSpeed * orbitSpeedSign * dt;
+      updateOrbitPos();
+    } else if(ball.mode === 'fly'){
+      ball.x += ball.vx*dt;
+      ball.y += ball.vy*dt;
+
+      // trail
+      trail.push({x:ball.x, y:ball.y, life:0.35});
+
+      // check spike collisions
+      for(const sp of spikes){
+        const dx = ball.x - sp.x;
+        const dy = ball.y - sp.y;
+        const dist = Math.hypot(dx,dy);
+        if(dist < sp.size*0.85 + BALL_R*0.6){
+          gameOver('spike');
+          return;
+        }
+      }
+
+      // check catch on anchors ahead (any anchor not currently attached)
+      for(let i=0;i<anchors.length;i++){
+        if(i === ball.anchorIdx) continue;
+        const a = anchors[i];
+        const dx = ball.x - a.x;
+        const dy = ball.y - a.y;
+        const dist = Math.hypot(dx,dy);
+        if(dist < CATCH_R){
+          // catch!
+          ball.mode = 'orbit';
+          ball.anchorIdx = i;
+          ball.angle = Math.atan2(dy,dx);
+          // snap onto orbit radius smoothly by just setting position via angle
+          updateOrbitPos();
+          if(i > 0){
+            score++;
+            scoreEl.textContent = score;
+          }
+          spawnParticles(a.x, a.y, '#4ff0ff', 14);
+          beep(880, 0.06);
+          // generate more anchors ahead if running low
+          while(anchors.length - ball.anchorIdx < 6){
+            addNextAnchor(false);
+          }
+          break;
+        }
+      }
+
+      // off screen check (world space, considering camera)
+      const screenY = ball.y + cameraY;
+      const screenX = ball.x;
+      if(screenY < -80 || screenY > H+80 || screenX < -80 || screenX > W+80){
+        if(state === 'playing') gameOver('miss');
+        return;
+      }
+    }
+
+    // trail decay
+    for(let i=trail.length-1;i>=0;i--){
+      trail[i].life -= dt;
+      if(trail[i].life<=0) trail.splice(i,1);
+    }
+
+    // camera follows: keep ball roughly around 60% height from bottom, scroll world down as ball moves up
+    const targetScreenY = H*0.62;
+    const desiredCamera = targetScreenY - ball.y;
+    // smooth camera towards desired, but only allow moving upward view (camera increases)
+    cameraY += (desiredCamera - cameraY) * Math.min(dt*4, 1);
+  }
+
+  function worldToScreenY(y){ return y + cameraY; }
+
+  function render(){
+    ctx.clearRect(0,0,W,H);
+
+    // subtle vertical vignette bg handled by CSS gradient; add faint moving stars for depth
+    ctx.save();
+    let shakeX = 0, shakeY = 0;
+    if(shakeTimer>0){
+      shakeX = rand(-4,4);
+      shakeY = rand(-4,4);
+    }
+    ctx.translate(shakeX, shakeY);
+
+    // draw tether line (only when orbiting)
+    if(state === 'playing' || state==='over'){
+      if(ball.mode === 'orbit'){
+        const a = anchors[ball.anchorIdx];
+        ctx.beginPath();
+        ctx.moveTo(a.x, worldToScreenY(a.y));
+        ctx.lineTo(ball.x, worldToScreenY(ball.y));
+        ctx.strokeStyle = 'rgba(79,240,255,.5)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // draw anchors
+      for(const a of anchors){
+        const sy = worldToScreenY(a.y);
+        if(sy < -60 || sy > H+60) continue;
+        const isCurrent = anchors[ball.anchorIdx] === a;
+        ctx.beginPath();
+        ctx.arc(a.x, sy, a.r, 0, Math.PI*2);
+        ctx.strokeStyle = isCurrent ? '#4ff0ff' : 'rgba(238,244,248,.55)';
+        ctx.lineWidth = isCurrent ? 3 : 2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(a.x, sy, 3.5, 0, Math.PI*2);
+        ctx.fillStyle = isCurrent ? '#4ff0ff' : 'rgba(238,244,248,.5)';
+        ctx.fill();
+
+        // catch radius faint ring for non-current
+        if(!isCurrent){
+          ctx.beginPath();
+          ctx.arc(a.x, sy, CATCH_R, 0, Math.PI*2);
+          ctx.strokeStyle = 'rgba(79,240,255,.08)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+
+      // draw spikes (triangles pointing toward path, simple upward-ish orientation)
+      for(const sp of spikes){
+        const sy = worldToScreenY(sp.y);
+        if(sy < -80 || sy > H+80) continue;
+        drawSpike(sp.x, sy, sp.size);
+      }
+
+      // draw trail
+      for(const p of trail){
+        const sy = worldToScreenY(p.y);
+        const alpha = Math.max(0, p.life/0.35);
+        ctx.beginPath();
+        ctx.arc(p.x, sy, BALL_R*0.6*alpha, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,91,61,'+ (alpha*0.5) +')';
+        ctx.fill();
+      }
+
+      // draw ball
+      const bsy = worldToScreenY(ball.y);
+      ctx.beginPath();
+      ctx.arc(ball.x, bsy, BALL_R, 0, Math.PI*2);
+      ctx.fillStyle = '#ff5b3d';
+      ctx.shadowColor = 'rgba(255,91,61,.7)';
+      ctx.shadowBlur = 14;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    // particles
+    for(const p of particles){
+      const alpha = Math.max(0, p.life/p.maxLife);
+      const sy = worldToScreenY(p.y);
+      ctx.beginPath();
+      ctx.arc(p.x, sy, 3*alpha, 0, Math.PI*2);
+      ctx.fillStyle = p.color;
+      ctx.globalAlpha = alpha;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    ctx.restore();
+  }
+
+  function drawSpike(x,y,size){
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x + size*0.85, y + size*0.7);
+    ctx.lineTo(x - size*0.85, y + size*0.7);
+    ctx.closePath();
+    ctx.fillStyle = '#ff5b3d';
+    ctx.shadowColor = 'rgba(255,91,61,.5)';
+    ctx.shadowBlur = 10;
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = 'rgba(255,180,150,.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  // idle preview animation before start (draw a static-ish scene)
+  function idleFrame(){
+    if(state === 'idle'){
+      ctx.clearRect(0,0,W,H);
+      // faint decorative orbit preview in background
+      const cx = W/2, cy = H*0.6;
+      ctx.beginPath();
+      ctx.arc(cx, cy, ANCHOR_R, 0, Math.PI*2);
+      ctx.strokeStyle = 'rgba(238,244,248,.25)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      const ang = (performance.now()/700) % (Math.PI*2);
+      const bx = cx + Math.cos(ang)*90;
+      const by = cy + Math.sin(ang)*90;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(bx,by);
+      ctx.strokeStyle = 'rgba(79,240,255,.3)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(bx,by,BALL_R,0,Math.PI*2);
+      ctx.fillStyle = 'rgba(255,91,61,.6)';
+      ctx.fill();
+      requestAnimationFrame(idleFrame);
+    }
+  }
+  requestAnimationFrame(idleFrame);
+
+  hint.style.opacity = '0';
+
+})();
+</script>
+
+</body>
+</html>
