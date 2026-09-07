@@ -169,6 +169,84 @@ button.btn:focus-visible{
   color:var(--text);
   background:rgba(255,255,255,.04);
 }
+
+/* Dialln branding footer */
+.dialln-footer{
+  margin-top:26px;
+  padding-top:18px;
+  border-top:1px solid var(--border);
+  text-align:center;
+}
+.dialln-footer .df-from{
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--cyan);
+  margin-bottom:10px;
+}
+.dialln-footer .df-label{
+  display:block;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:8px;
+}
+.dialln-footer .df-socials{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px 14px;
+  margin-bottom:14px;
+}
+.dialln-footer .df-social{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  color:var(--text);
+  text-decoration:none;
+  opacity:.85;
+  transition:opacity .15s ease;
+}
+.dialln-footer .df-social:hover{ opacity:1; }
+.dialln-footer .df-social svg{ width:15px; height:15px; flex-shrink:0; }
+.dialln-footer .df-contact{
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.dialln-footer .df-contact a{ color:var(--cyan); text-decoration:none; }
+.dialln-footer .df-copy{
+  font-size:10px;
+  color:var(--muted);
+  opacity:.7;
+  letter-spacing:.02em;
+}
+
+/* Rotation switch button */
+#rotateBtn{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  width:52px; height:52px;
+  border-radius:50%;
+  background:rgba(10,14,26,.7);
+  border:2px solid var(--cyan);
+  box-shadow:0 0 14px rgba(79,240,255,.25);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  z-index:6;
+  transition:transform .15s ease, background .15s ease;
+}
+#rotateBtn:active{ transform:scale(.9); }
+#rotateBtn svg{
+  width:26px; height:26px;
+  stroke:var(--cyan);
+  transition:transform .3s ease;
+}
+#rotateBtn.ccw svg{ transform:scaleX(-1); }
 </style>
 </head>
 <body>
@@ -188,11 +266,42 @@ button.btn:focus-visible{
 
 <div id="hint">tap / click / <span class="kbd">space</span> — release the ball at the right moment</div>
 
+<button id="rotateBtn" aria-label="Switch orbit rotation direction" title="Switch rotation direction">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 12a9 9 0 1 0 3-6.7"/>
+    <path d="M3 4v5h5"/>
+  </svg>
+</button>
+
 <div class="overlay" id="startOverlay">
   <div class="panel">
     <h1>Anchor <span class="glow">Swing</span></h1>
     <p>The ball orbits each anchor automatically. Tap to release it — it flies off in a straight line along the tangent of its orbit. Time the release to swing past the spikes and catch the next anchor ahead.</p>
     <button class="btn" id="startBtn">Start</button>
+    <div class="dialln-footer">
+      <div class="df-from">From Dialln</div>
+      <span class="df-label">Follow us on</span>
+      <div class="df-socials">
+        <a class="df-social" href="https://instagram.com/dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://youtube.com/@dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://www.threads.net/@dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-4 0-7 3-7 8s3 12 7 12 6-3 6-6c0-2-1-4-4-4-2 0-3 1-3 3"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://twitter.com/dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M20 4L4 20"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+      </div>
+      <div class="df-contact">Contact us <a href="mailto:dialln.support@gmail.com">dialln.support@gmail.com</a></div>
+      <div class="df-copy">&copy; 2026 . Dialln Technologies . All Rights Reserved</div>
+    </div>
   </div>
 </div>
 
@@ -211,6 +320,30 @@ button.btn:focus-visible{
       </div>
     </div>
     <button class="btn" id="restartBtn">Restart</button>
+    <div class="dialln-footer">
+      <div class="df-from">From Dialln</div>
+      <span class="df-label">Follow us on</span>
+      <div class="df-socials">
+        <a class="df-social" href="https://instagram.com/dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://youtube.com/@dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z" fill="currentColor" stroke="none"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://www.threads.net/@dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-4 0-7 3-7 8s3 12 7 12 6-3 6-6c0-2-1-4-4-4-2 0-3 1-3 3"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+        <a class="df-social" href="https://twitter.com/dialln_technologies" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4l16 16M20 4L4 20"/></svg>
+          <span>@dialln_technologies</span>
+        </a>
+      </div>
+      <div class="df-contact">Contact us <a href="mailto:dialln.support@gmail.com">dialln.support@gmail.com</a></div>
+      <div class="df-copy">&copy; 2026 . Dialln Technologies . All Rights Reserved</div>
+    </div>
   </div>
 </div>
 
@@ -238,6 +371,8 @@ button.btn:focus-visible{
   const scoreEl = document.getElementById('scoreVal');
   const bestEl = document.getElementById('bestVal');
   const hint = document.getElementById('hint');
+  const originalHintText = hint.textContent;
+  const rotateBtn = document.getElementById('rotateBtn');
   const startOverlay = document.getElementById('startOverlay');
   const overOverlay = document.getElementById('overOverlay');
   const startBtn = document.getElementById('startBtn');
@@ -262,11 +397,19 @@ button.btn:focus-visible{
   let flashTimer = 0;
   let particles = [];
   let shakeTimer = 0;
+  let barrierY = 0;
+  let anchorsSinceGolden = 0;
+  let abilityActive = false;
+  let abilityTimer = 0;
+  const ABILITY_DURATION = 10;
 
   const BALL_R = 8;
   const ANCHOR_R = 26;
   const CATCH_R = 46;
   const FLY_SPEED = 480; // px/s straight line speed after release
+  const ARC_RADIUS = CATCH_R; // rotating red guard-arc sits right at the catch ring
+  const ARC_THICKNESS = 22;
+  const ARC_FIRST_ANCHOR = 10; // this obstacle only starts appearing once the player has progressed a bit
 
   function rand(a,b){ return a + Math.random()*(b-a); }
 
@@ -281,11 +424,19 @@ button.btn:focus-visible{
     orbitRadius = 90;
     orbitSpeed = 1.4;
     anchorSpacing = 220;
+    anchorsSinceGolden = 0;
+    abilityActive = false;
+    abilityTimer = 0;
+    hint.textContent = originalHintText;
+    hint.style.color = '';
+    orbitSpeedSign = 1;
+    rotateBtn.classList.remove('ccw');
 
     // first anchor centered, fixed near bottom-ish
     let startX = W/2;
     let startY = H - 140;
-    anchors.push({x:startX, y:startY, r:ANCHOR_R, id: anchorIdCounter++});
+    anchors.push({x:startX, y:startY, r:ANCHOR_R, id: anchorIdCounter++, golden:false, arc:null});
+    barrierY = startY + orbitRadius + 80; // invisible kill-floor, fixed from the starting position
 
     // generate anchors going upward
     let prevX = startX, prevY = startY;
@@ -305,29 +456,69 @@ button.btn:focus-visible{
     return Math.min(score / 40, 1);
   }
 
+  function currentLateT(){
+    // keeps difficulty creeping up slowly even after the main ramp saturates, for true endless play
+    return Math.min(Math.max(score - 40, 0) / 260, 1);
+  }
+
   function addNextAnchor(initial){
     const last = anchors[anchors.length-1];
+    const anchorsSoFar = anchors.length; // count of anchors already placed
     const t = currentDifficultyT();
+    const lateT = currentLateT();
     // spacing decreases as score grows (tighter gaps)
-    const spacing = anchorSpacing - t*70 + rand(-14,14);
+    const spacing = anchorSpacing - t*70 - lateT*20 + rand(-14,14);
     const xRange = W*0.62;
     let nx = last.x + rand(-xRange/2, xRange/2);
     nx = Math.max(70, Math.min(W-70, nx));
-    const ny = last.y - Math.max(150, spacing);
-    const anchor = {x:nx, y:ny, r:ANCHOR_R, id:anchorIdCounter++};
+    const ny = last.y - Math.max(140, spacing);
+
+    // golden ability anchor: rare, gated by a minimum anchor count and a minimum gap
+    const GOLDEN_FIRST_ANCHOR = 7;
+    const MIN_GOLDEN_GAP = 8;
+    let isGolden = false;
+    if(anchorsSoFar >= GOLDEN_FIRST_ANCHOR && anchorsSinceGolden >= MIN_GOLDEN_GAP && Math.random() < 0.22){
+      isGolden = true;
+      anchorsSinceGolden = 0;
+    } else {
+      anchorsSinceGolden++;
+    }
+
+    // rotating red guard-arc: only on anchors the player hasn't reached yet, gated by progress,
+    // grows more common / wider / faster with difficulty for a continuously tougher endless climb
+    let arcData = null;
+    if(!isGolden && anchorsSoFar >= ARC_FIRST_ANCHOR){
+      const arcChance = Math.min(0.1 + t*0.35 + lateT*0.25, 0.6);
+      if(Math.random() < arcChance){
+        const span = Math.min(2.2 + t*0.9 + lateT*0.7, 5.5);
+        const speed = (0.9 + t*1.3 + lateT*1.1) * (Math.random() < 0.5 ? 1 : -1);
+        arcData = { angle: rand(0, Math.PI*2), span, speed, active:true };
+      }
+    }
+
+    const anchor = {x:nx, y:ny, r:ANCHOR_R, id:anchorIdCounter++, golden:isGolden, arc:arcData};
     anchors.push(anchor);
 
-    // maybe add a spike between last and this anchor, positioned off the straight line
-    if(!initial || anchors.length > 2){
-      if(Math.random() < 0.8){
+    // obstacles ease in gently: almost none for the first few anchors, more as score climbs (endless ramp)
+    const easeT = Math.min(anchorsSoFar / 2, 1);
+    if(!initial || anchorsSoFar > 1){
+      let spikeChanceMain = 0;
+      if(anchorsSoFar >= 1){
+        spikeChanceMain = Math.min(0.55 + easeT*0.2 + t*0.3 + lateT*0.1, 0.95);
+      }
+      if(Math.random() < spikeChanceMain){
         const midX = (last.x+nx)/2 + rand(-60,60);
         const midY = (last.y+ny)/2 + rand(-30,30);
         const size = rand(18,26);
         spikes.push({x:midX, y:midY, size, id:'s'+anchorIdCounter});
       }
-      if(Math.random() < 0.35 + t*0.3){
+      let spikeChanceSecondary = 0;
+      if(anchorsSoFar >= 1){
+        spikeChanceSecondary = Math.min(0.35 + easeT*0.15 + t*0.3 + lateT*0.15, 0.82);
+      }
+      if(Math.random() < spikeChanceSecondary){
         const midX2 = last.x + rand(-W*0.3, W*0.3);
-        const midY2 = last.y - rand(40, spacing-40);
+        const midY2 = last.y - rand(40, Math.max(50, spacing-40));
         const mx = Math.max(40, Math.min(W-40, midX2));
         spikes.push({x:mx, y:midY2, size: rand(16,24), id:'s2'+anchorIdCounter});
       }
@@ -380,7 +571,7 @@ button.btn:focus-visible{
     spawnParticles(ball.x, ball.y, '#ff5b3d', 26);
     beep(140, 0.15, 'sawtooth');
     setTimeout(()=>{
-      overTitle.textContent = reason === 'spike' ? 'Impaled' : 'Missed';
+      overTitle.textContent = reason === 'spike' ? 'Impaled' : (reason === 'barrier' ? 'Crashed' : (reason === 'arc' ? 'Blocked' : 'Missed'));
       finalScoreEl.textContent = score;
       const isNewBest = score > best;
       if(isNewBest){
@@ -434,6 +625,15 @@ button.btn:focus-visible{
   startBtn.addEventListener('click', startGame);
   restartBtn.addEventListener('click', startGame);
 
+  function toggleRotation(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    orbitSpeedSign *= -1;
+    rotateBtn.classList.toggle('ccw');
+    beep(520, 0.04);
+  }
+  rotateBtn.addEventListener('click', toggleRotation);
+  rotateBtn.addEventListener('touchstart', toggleRotation, {passive:false});
+
   function startGame(){
     startOverlay.classList.add('hidden');
     overOverlay.classList.add('hidden');
@@ -467,9 +667,31 @@ button.btn:focus-visible{
 
     if(state !== 'playing') return;
 
-    // difficulty ramp
+    // difficulty ramp (keeps climbing slowly even after the main ramp saturates -> endless)
     const t = currentDifficultyT();
-    orbitSpeed = 1.4 + t*1.3;
+    const lateT = currentLateT();
+    // past score 15, the ball's own orbit speed keeps creeping up too -- slow and never fully caps
+    const pastFifteen = Math.max(score - 15, 0);
+    const perpetualSpin = Math.log(1 + pastFifteen/40) * 0.14;
+    orbitSpeed = 1.4 + t*1.3 + lateT*0.6 + perpetualSpin;
+
+    // rotate every active guard-arc -- continuous motion, independent of the ball's own state
+    for(const a of anchors){
+      if(a.arc && a.arc.active){
+        a.arc.angle += a.arc.speed * dt;
+      }
+    }
+
+    // ability countdown
+    if(abilityActive){
+      abilityTimer -= dt;
+      if(abilityTimer <= 0){
+        abilityActive = false;
+        abilityTimer = 0;
+        hint.textContent = originalHintText;
+        hint.style.color = '';
+      }
+    }
 
     if(ball.mode === 'orbit'){
       ball.angle += orbitSpeed * orbitSpeedSign * dt;
@@ -499,6 +721,17 @@ button.btn:focus-visible{
         const dx = ball.x - a.x;
         const dy = ball.y - a.y;
         const dist = Math.hypot(dx,dy);
+
+        // rotating red guard-arc: touching its blocked portion ends the run
+        if(a.arc && a.arc.active && Math.abs(dist - ARC_RADIUS) < ARC_THICKNESS/2){
+          let rel = (Math.atan2(dy,dx) - a.arc.angle) % (Math.PI*2);
+          if(rel < 0) rel += Math.PI*2;
+          if(rel < a.arc.span){
+            gameOver('arc');
+            return;
+          }
+        }
+
         if(dist < CATCH_R){
           // catch!
           ball.mode = 'orbit';
@@ -510,10 +743,21 @@ button.btn:focus-visible{
             score++;
             scoreEl.textContent = score;
           }
-          spawnParticles(a.x, a.y, '#4ff0ff', 14);
-          beep(880, 0.06);
-          // generate more anchors ahead if running low
-          while(anchors.length - ball.anchorIdx < 6){
+          if(a.arc) a.arc.active = false; // reached safely -- the guard-arc is gone
+          if(a.golden){
+            abilityActive = true;
+            abilityTimer = ABILITY_DURATION;
+            spawnParticles(a.x, a.y, '#ffd24a', 22);
+            beep(1180, 0.08);
+            hint.textContent = 'AIM ABILITY -- trajectory line active';
+            hint.style.color = '#ffd24a';
+          } else {
+            spawnParticles(a.x, a.y, '#4ff0ff', 14);
+            beep(880, 0.06);
+          }
+          // generate more anchors ahead if running low -- generous buffer so the chain never
+          // runs out above the player, however tight the spacing gets
+          while(anchors.length - ball.anchorIdx < 24){
             addNextAnchor(false);
           }
           break;
@@ -523,7 +767,12 @@ button.btn:focus-visible{
       // off screen check (world space, considering camera)
       const screenY = ball.y + cameraY;
       const screenX = ball.x;
-      if(screenY < -80 || screenY > H+80 || screenX < -80 || screenX > W+80){
+      const BOTTOM_MARGIN = 36; // tight invisible barrier near the visible bottom edge
+      if(screenY > H + BOTTOM_MARGIN || ball.y > barrierY){
+        if(state === 'playing') gameOver('barrier');
+        return;
+      }
+      if(screenY < -80 || screenX < -80 || screenX > W+80){
         if(state === 'playing') gameOver('miss');
         return;
       }
@@ -538,7 +787,7 @@ button.btn:focus-visible{
     // camera follows: keep ball roughly around 60% height from bottom, scroll world down as ball moves up
     const targetScreenY = H*0.62;
     const desiredCamera = targetScreenY - ball.y;
-    // smooth camera towards desired, but only allow moving upward view (camera increases)
+    // smooth camera towards desired -- follows both ways, which is what gives the page its natural up/down motion
     cameraY += (desiredCamera - cameraY) * Math.min(dt*4, 1);
   }
 
@@ -580,17 +829,35 @@ button.btn:focus-visible{
         ctx.stroke();
 
         ctx.beginPath();
-        ctx.arc(a.x, sy, 3.5, 0, Math.PI*2);
-        ctx.fillStyle = isCurrent ? '#4ff0ff' : 'rgba(238,244,248,.5)';
+        ctx.arc(a.x, sy, a.golden ? 5.5 : 3.5, 0, Math.PI*2);
+        ctx.fillStyle = a.golden ? '#ffd24a' : (isCurrent ? '#4ff0ff' : 'rgba(238,244,248,.5)');
+        if(a.golden){
+          ctx.shadowColor = 'rgba(255,210,74,.8)';
+          ctx.shadowBlur = 12;
+        }
         ctx.fill();
+        ctx.shadowBlur = 0;
 
         // catch radius faint ring for non-current
         if(!isCurrent){
           ctx.beginPath();
           ctx.arc(a.x, sy, CATCH_R, 0, Math.PI*2);
-          ctx.strokeStyle = 'rgba(79,240,255,.08)';
+          ctx.strokeStyle = a.golden ? 'rgba(255,210,74,.14)' : 'rgba(79,240,255,.08)';
           ctx.lineWidth = 1;
           ctx.stroke();
+        }
+
+        // rotating red guard-arc -- blocks part of the catch ring, must be dodged
+        if(!isCurrent && a.arc && a.arc.active){
+          ctx.beginPath();
+          ctx.arc(a.x, sy, ARC_RADIUS, a.arc.angle, a.arc.angle + a.arc.span);
+          ctx.strokeStyle = '#ff5b3d';
+          ctx.lineWidth = 7;
+          ctx.lineCap = 'round';
+          ctx.shadowColor = 'rgba(255,91,61,.65)';
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
         }
       }
 
@@ -611,8 +878,28 @@ button.btn:focus-visible{
         ctx.fill();
       }
 
-      // draw ball
+      // aim trajectory (golden ability): dotted guide line rotating with the ball, bubble-shooter style
       const bsy = worldToScreenY(ball.y);
+      if(abilityActive && ball.mode === 'orbit'){
+        const dirSign = orbitSpeedSign;
+        const atx = -Math.sin(ball.angle) * dirSign;
+        const aty = Math.cos(ball.angle) * dirSign;
+        const alen = Math.hypot(atx,aty) || 1;
+        const aux = atx/alen, auy = aty/alen;
+        const aimLen = 260;
+        ctx.save();
+        ctx.setLineDash([7,9]);
+        ctx.strokeStyle = 'rgba(255,210,74,.9)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(ball.x, bsy);
+        ctx.lineTo(ball.x + aux*aimLen, bsy + auy*aimLen);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      // draw ball
       ctx.beginPath();
       ctx.arc(ball.x, bsy, BALL_R, 0, Math.PI*2);
       ctx.fillStyle = '#ff5b3d';
