@@ -382,6 +382,7 @@ button.btn:focus-visible{
     <h1>Anchor <span class="glow">Swing</span></h1>
     <p>The ball orbits each anchor automatically. Tap to release it — it flies off in a straight line along the tangent of its orbit. Time the release to swing past the spikes and catch the next anchor ahead.</p>
     <div class="rank-badge" id="rankBadge"><span class="dot"></span><span id="rankBadgeText">Bronze</span></div>
+    <div class="rank-progress" id="nextRankNote">10 more to reach Silver 1</div>
     <button class="btn" id="startBtn">Start</button>
     <div class="dialln-footer">
       <div class="df-from">From Dialln</div>
@@ -511,9 +512,15 @@ button.btn:focus-visible{
     { name:'Gold 1',       min:25,  color:'#f0c419' },
     { name:'Gold 2',       min:30,  color:'#f0c419' },
     { name:'Gold 3',       min:35,  color:'#f0c419' },
-    { name:'Platinum',     min:40,  color:'#7fe8d0' },
-    { name:'Diamond',      min:80,  color:'#8ec9ff' },
-    { name:'Heroic',       min:150, color:'#c78bff' },
+    { name:'Platinum 1',   min:40,  color:'#7fe8d0' },
+    { name:'Platinum 2',   min:60,  color:'#7fe8d0' },
+    { name:'Platinum 3',   min:80,  color:'#7fe8d0' },
+    { name:'Diamond 1',    min:105, color:'#8ec9ff' },
+    { name:'Diamond 2',    min:130, color:'#8ec9ff' },
+    { name:'Diamond 3',    min:160, color:'#8ec9ff' },
+    { name:'Heroic 1',     min:195, color:'#c78bff' },
+    { name:'Heroic 2',     min:230, color:'#c78bff' },
+    { name:'Heroic 3',     min:265, color:'#c78bff' },
     { name:'Grand Master', min:300, color:'#ff5b3d' }
   ];
   function tierIndexForScore(s){
@@ -536,6 +543,14 @@ button.btn:focus-visible{
     const r = RANKS[rankIdx];
     rankBadgeEl.style.setProperty('--rank-color', r.color);
     rankBadgeTextEl.textContent = r.name;
+
+    const next = RANKS[rankIdx + 1];
+    if(next){
+      const remaining = Math.max(0, next.min - best);
+      nextRankNoteEl.textContent = remaining + ' more to reach ' + next.name;
+    } else {
+      nextRankNoteEl.textContent = "You've reached the highest rank!";
+    }
   }
 
   /** A solo (or "You"-turn) score can instantly raise the floor of your rank -- never lowers it. */
@@ -566,6 +581,7 @@ button.btn:focus-visible{
   const newBestTag = document.getElementById('newBestTag');
   const rankBadgeEl = document.getElementById('rankBadge');
   const rankBadgeTextEl = document.getElementById('rankBadgeText');
+  const nextRankNoteEl = document.getElementById('nextRankNote');
   renderRankBadge();
 
   const rankUpOverlay = document.getElementById('rankUpOverlay');
