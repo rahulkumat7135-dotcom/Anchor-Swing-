@@ -251,7 +251,7 @@ button.btn:focus-visible{
 /* Rank badge */
 .rank-badge{
   display:inline-flex; align-items:center; gap:8px;
-  padding:8px 16px;
+  padding:6px 16px 6px 10px;
   border-radius:999px;
   border:2px solid var(--rank-color, var(--cyan));
   color:var(--rank-color, var(--cyan));
@@ -259,11 +259,13 @@ button.btn:focus-visible{
   font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
   margin-bottom:22px;
 }
-.rank-badge .dot{
-  width:9px; height:9px; border-radius:50%;
-  background:var(--rank-color, var(--cyan));
-  box-shadow:0 0 8px var(--rank-color, var(--cyan));
+.badge-icon{
+  display:inline-flex;
+  width:26px; height:auto;
+  flex-shrink:0;
+  filter:drop-shadow(0 0 4px var(--rank-color, var(--cyan)));
 }
+.badge-icon svg{ display:block; width:100%; height:auto; }
 .rank-progress{
   font-size:11px; color:var(--muted); letter-spacing:.06em;
   margin-bottom:18px;
@@ -308,6 +310,11 @@ button.btn:focus-visible{
   overflow:hidden;
   pointer-events:none;
   border-radius:var(--r);
+  z-index:1;
+}
+.rank-up-content{
+  position:relative;
+  z-index:2;
 }
 .confetti-piece{
   position:absolute; top:-10px; width:8px; height:8px; border-radius:2px;
@@ -332,21 +339,20 @@ button.btn:focus-visible{
   border-radius:999px;
   font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
 }
-.rank-chip .dot{ width:9px; height:9px; border-radius:50%; }
+.rank-chip .badge-icon{ width:32px; }
 .rank-chip.old{
   border:2px solid var(--border);
   color:var(--muted);
   background:rgba(255,255,255,.03);
   opacity:.6;
 }
-.rank-chip.old .dot{ background:var(--muted); }
+.rank-chip.old .badge-icon{ filter:grayscale(1) drop-shadow(0 0 0 transparent); }
 .rank-chip.new{
   border:2px solid var(--rank-color, var(--cyan));
   color:var(--rank-color, var(--cyan));
   background:rgba(255,255,255,.04);
   animation:rankChipPop .5s cubic-bezier(0.34,1.56,0.64,1) both, badgeGlow 1.6s ease-in-out .5s infinite;
 }
-.rank-chip.new .dot{ background:var(--rank-color, var(--cyan)); box-shadow:0 0 8px var(--rank-color, var(--cyan)); }
 .rank-arrow{
   font-size:20px; color:var(--muted);
   animation:arrowSlide 1.2s ease-in-out infinite;
@@ -381,7 +387,7 @@ button.btn:focus-visible{
   <div class="panel">
     <h1>Anchor <span class="glow">Swing</span></h1>
     <p>The ball orbits each anchor automatically. Tap to release it — it flies off in a straight line along the tangent of its orbit. Time the release to swing past the spikes and catch the next anchor ahead.</p>
-    <div class="rank-badge" id="rankBadge"><span class="dot"></span><span id="rankBadgeText">Bronze</span></div>
+    <div class="rank-badge" id="rankBadge"><span class="badge-icon" id="rankBadgeIcon"></span><span id="rankBadgeText">Bronze</span></div>
     <div class="rank-progress" id="nextRankNote">10 more to reach Silver 1</div>
     <button class="btn" id="startBtn">Start</button>
     <div class="dialln-footer">
@@ -456,15 +462,17 @@ button.btn:focus-visible{
 <div class="overlay hidden" id="rankUpOverlay">
   <div class="panel rank-up-panel">
     <div class="confetti-wrap" id="confettiWrap"></div>
-    <div class="rank-up-label">🎉 Rank Up!</div>
-    <h1>Congratulations!</h1>
-    <p id="rankUpText">You've been promoted!</p>
-    <div class="rank-transition">
-      <div class="rank-chip old" id="oldRankChip"><span class="dot"></span><span id="oldRankText">Bronze</span></div>
-      <div class="rank-arrow">➜</div>
-      <div class="rank-chip new" id="newRankChip"><span class="dot"></span><span id="newRankText">Silver 1</span></div>
+    <div class="rank-up-content">
+      <div class="rank-up-label">🎉 Rank Up!</div>
+      <h1>Congratulations!</h1>
+      <p id="rankUpText">You've been promoted!</p>
+      <div class="rank-transition">
+        <div class="rank-chip old" id="oldRankChip"><span class="badge-icon" id="oldRankIcon"></span><span id="oldRankText">Bronze</span></div>
+        <div class="rank-arrow">➜</div>
+        <div class="rank-chip new" id="newRankChip"><span class="badge-icon" id="newRankIcon"></span><span id="newRankText">Silver 1</span></div>
+      </div>
+      <button class="btn" id="rankUpContinueBtn">Continue</button>
     </div>
-    <button class="btn" id="rankUpContinueBtn">Continue</button>
   </div>
 </div>
 
@@ -505,28 +513,85 @@ button.btn:focus-visible{
 
   // ---- Ranks ----
   const RANKS = [
-    { name:'Bronze',       min:0,   color:'#c97b4a' },
-    { name:'Silver 1',     min:10,  color:'#aab4bf' },
-    { name:'Silver 2',     min:15,  color:'#aab4bf' },
-    { name:'Silver 3',     min:20,  color:'#aab4bf' },
-    { name:'Gold 1',       min:25,  color:'#f0c419' },
-    { name:'Gold 2',       min:30,  color:'#f0c419' },
-    { name:'Gold 3',       min:35,  color:'#f0c419' },
-    { name:'Platinum 1',   min:40,  color:'#7fe8d0' },
-    { name:'Platinum 2',   min:60,  color:'#7fe8d0' },
-    { name:'Platinum 3',   min:80,  color:'#7fe8d0' },
-    { name:'Diamond 1',    min:105, color:'#8ec9ff' },
-    { name:'Diamond 2',    min:130, color:'#8ec9ff' },
-    { name:'Diamond 3',    min:160, color:'#8ec9ff' },
-    { name:'Heroic 1',     min:195, color:'#c78bff' },
-    { name:'Heroic 2',     min:230, color:'#c78bff' },
-    { name:'Heroic 3',     min:265, color:'#c78bff' },
-    { name:'Grand Master', min:300, color:'#ff5b3d' }
+    { name:'Bronze',       min:0,   color:'#c97b4a', band:'bronze',      sub:null },
+    { name:'Silver 1',     min:10,  color:'#aab4bf', band:'silver',      sub:1 },
+    { name:'Silver 2',     min:15,  color:'#aab4bf', band:'silver',      sub:2 },
+    { name:'Silver 3',     min:20,  color:'#aab4bf', band:'silver',      sub:3 },
+    { name:'Gold 1',       min:25,  color:'#f0c419', band:'gold',        sub:1 },
+    { name:'Gold 2',       min:30,  color:'#f0c419', band:'gold',        sub:2 },
+    { name:'Gold 3',       min:35,  color:'#f0c419', band:'gold',        sub:3 },
+    { name:'Platinum 1',   min:40,  color:'#7fe8d0', band:'platinum',    sub:1 },
+    { name:'Platinum 2',   min:60,  color:'#7fe8d0', band:'platinum',    sub:2 },
+    { name:'Platinum 3',   min:80,  color:'#7fe8d0', band:'platinum',    sub:3 },
+    { name:'Diamond 1',    min:105, color:'#8ec9ff', band:'diamond',     sub:1 },
+    { name:'Diamond 2',    min:130, color:'#8ec9ff', band:'diamond',     sub:2 },
+    { name:'Diamond 3',    min:160, color:'#8ec9ff', band:'diamond',     sub:3 },
+    { name:'Heroic 1',     min:195, color:'#c78bff', band:'heroic',      sub:1 },
+    { name:'Heroic 2',     min:230, color:'#c78bff', band:'heroic',      sub:2 },
+    { name:'Heroic 3',     min:265, color:'#c78bff', band:'heroic',      sub:3 },
+    { name:'Grand Master', min:300, color:'#ff5b3d', band:'grandmaster', sub:null }
   ];
   function tierIndexForScore(s){
     let idx = 0;
     for(let i=0;i<RANKS.length;i++){ if(s >= RANKS[i].min) idx = i; }
     return idx;
+  }
+
+  // ---- Rank badge artwork ----
+  // A proper shield-style badge per rank (like a Free Fire / PUBG rank icon) instead of a plain
+  // colored dot: a metal-gradient shield with a hanging bar on top, and an icon inside that
+  // escalates with tier -- chevrons (Bronze/Silver) -> stars (Gold) -> gems (Platinum/Diamond)
+  // -> winged star (Heroic) -> crown (Grand Master), with 1/2/3 icons stacked for sub-levels.
+  let badgeIconSeq = 0;
+  const BAND_STYLES = {
+    bronze:      { c1:'#5e3a1e', c2:'#e0a865', ic:'#fff3e0' },
+    silver:      { c1:'#5b6570', c2:'#e3ebf2', ic:'#ffffff' },
+    gold:        { c1:'#8a6300', c2:'#ffe27a', ic:'#3a2c00' },
+    platinum:    { c1:'#146b5a', c2:'#b6f5e8', ic:'#06251f' },
+    diamond:     { c1:'#1f5a94', c2:'#cfe8ff', ic:'#0a2c4d' },
+    heroic:      { c1:'#4a2b74', c2:'#e6cdff', ic:'#2a0a45' },
+    grandmaster: { c1:'#8f1512', c2:'#ffd24a', ic:'#3a0700' }
+  };
+
+  function badgeIconMarkup(band, sub, iconColor){
+    const cy = 31;
+    if(band === 'grandmaster'){
+      return `<path transform="translate(24,${cy})" d="M-11,5 L-11,-3 L-5,2 L0,-7 L5,2 L11,-3 L11,5 Z" fill="${iconColor}"/>`;
+    }
+    const spacing = 11;
+    const n = sub || 1;
+    const startX = 24 - ((n-1)*spacing)/2;
+    let out = '';
+    for(let i=0;i<n;i++){
+      const cx = startX + i*spacing;
+      if(band === 'bronze' || band === 'silver'){
+        out += `<path d="M${cx-6},${cy+3} L${cx},${cy-4} L${cx+6},${cy+3}" stroke="${iconColor}" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+      } else if(band === 'gold' || band === 'heroic'){
+        out += `<path transform="translate(${cx},${cy})" d="M0,-7 L2.06,-2.16 L7,-2.16 L3.04,1.29 L4.33,6.9 L0,3.74 L-4.33,6.9 L-3.04,1.29 L-7,-2.16 L-2.06,-2.16 Z" fill="${iconColor}"/>`;
+      } else if(band === 'platinum' || band === 'diamond'){
+        out += `<path transform="translate(${cx},${cy})" d="M0,-7 L7,0 L0,7 L-7,0 Z" fill="${iconColor}"/>`;
+      }
+    }
+    if(band === 'heroic'){
+      const half = ((n-1)*spacing)/2 + 10;
+      out += `<path d="M${24-half-6},${cy+3} C${24-half+1},${cy-5} ${24-half+8},${cy-5} ${24-half+11},${cy-1}" stroke="${iconColor}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+      out += `<path d="M${24+half+6},${cy+3} C${24+half-1},${cy-5} ${24+half-8},${cy-5} ${24+half-11},${cy-1}" stroke="${iconColor}" stroke-width="1.8" fill="none" stroke-linecap="round"/>`;
+    }
+    return out;
+  }
+
+  function buildBadgeSVG(rank){
+    const uid = 'rbg' + (badgeIconSeq++);
+    const s = BAND_STYLES[rank.band];
+    const icons = badgeIconMarkup(rank.band, rank.sub, s.ic);
+    return '<svg viewBox="0 0 48 58" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs><linearGradient id="' + uid + '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="' + s.c2 + '"/><stop offset="1" stop-color="' + s.c1 + '"/>' +
+      '</linearGradient></defs>' +
+      '<rect x="16" y="0" width="16" height="6" rx="2" fill="url(#' + uid + ')" stroke="rgba(0,0,0,.3)" stroke-width="1"/>' +
+      '<path d="M4 8 H44 V27 C44 39 34 49 24 54 C14 49 4 39 4 27 Z" fill="url(#' + uid + ')" stroke="rgba(0,0,0,.3)" stroke-width="1.5"/>' +
+      icons +
+      '</svg>';
   }
 
   const RANK_LS_KEYS = {
@@ -543,6 +608,7 @@ button.btn:focus-visible{
     const r = RANKS[rankIdx];
     rankBadgeEl.style.setProperty('--rank-color', r.color);
     rankBadgeTextEl.textContent = r.name;
+    rankBadgeIconEl.innerHTML = buildBadgeSVG(r);
 
     const next = RANKS[rankIdx + 1];
     if(next){
@@ -581,6 +647,7 @@ button.btn:focus-visible{
   const newBestTag = document.getElementById('newBestTag');
   const rankBadgeEl = document.getElementById('rankBadge');
   const rankBadgeTextEl = document.getElementById('rankBadgeText');
+  const rankBadgeIconEl = document.getElementById('rankBadgeIcon');
   const nextRankNoteEl = document.getElementById('nextRankNote');
   renderRankBadge();
 
@@ -588,8 +655,10 @@ button.btn:focus-visible{
   const rankUpText = document.getElementById('rankUpText');
   const oldRankChip = document.getElementById('oldRankChip');
   const oldRankText = document.getElementById('oldRankText');
+  const oldRankIcon = document.getElementById('oldRankIcon');
   const newRankChip = document.getElementById('newRankChip');
   const newRankText = document.getElementById('newRankText');
+  const newRankIcon = document.getElementById('newRankIcon');
   const rankUpContinueBtn = document.getElementById('rankUpContinueBtn');
   const confettiWrap = document.getElementById('confettiWrap');
 
@@ -612,8 +681,10 @@ button.btn:focus-visible{
     const newRank = RANKS[newIdx];
     oldRankChip.style.setProperty('--rank-color', oldRank.color);
     oldRankText.textContent = oldRank.name;
+    oldRankIcon.innerHTML = buildBadgeSVG(oldRank);
     newRankChip.style.setProperty('--rank-color', newRank.color);
     newRankText.textContent = newRank.name;
+    newRankIcon.innerHTML = buildBadgeSVG(newRank);
     rankUpText.textContent = "You've been promoted from " + oldRank.name + " to " + newRank.name + "!";
     spawnConfetti();
     rankUpOverlay.classList.remove('hidden');
